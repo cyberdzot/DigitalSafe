@@ -1,2 +1,8 @@
 # великолепный план Уолтер...
 programming_plan.md
+
+# кэш питона
+__pycache__
+
+# тестовая БД
+test.sqlite
