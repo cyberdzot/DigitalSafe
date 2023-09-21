@@ -1,5 +1,5 @@
-import src.controller as controller
+from controller.core import Core
 
 # Точка входа
 if __name__ == '__main__':
-    controller.start_program()
+    Core().start_program()
