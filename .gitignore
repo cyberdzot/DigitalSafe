@@ -6,3 +6,6 @@ __pycache__
 
 # тестовая БД
 test.sqlite
+
+# полигон для тестов
+profiler.py
