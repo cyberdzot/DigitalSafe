@@ -1,5 +1,5 @@
-from data_base import DB
-from utils import Console
+from src.data_base import DB
+from src.utils import Console
 import sqlite3
 
 
