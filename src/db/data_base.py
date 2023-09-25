@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
 
-class DB(ABC):
-    """Абстрактный класс содержащий общее поведение для различных БД."""
+class DataBase(ABC):
+    """Общее поведение для различных БД."""
 
     @abstractmethod
     def __init__(self):
