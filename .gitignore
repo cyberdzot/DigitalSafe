@@ -7,5 +7,5 @@
 # великолепный план Уолтер...
 programming_plan.md
 
-# тестовая БД
-test.sqlite
+# базы данных
+*.sqlite

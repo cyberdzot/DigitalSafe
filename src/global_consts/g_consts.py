@@ -4,12 +4,14 @@ from enum import Enum, auto
 class GConst(Enum):
     """Глобальные константы."""
 
-    # список окон
+    # список окон (WIN = WINDOW)
     WIN_EXIT = auto()
-    WIN_LOGIN = auto()
     WIN_MANUAL = auto()
-    WIN_AUTH = auto()
-    WIN_REG = auto()
     WIN_WAITING = auto()
+    WIN_MAIN_MENU = auto()
+    WIN_AUTHENTICATION = auto()
+    WIN_REGISTRATION = auto()
+    WIN_LOGIN = auto()
 
-    QUERY_REG = auto()
+    QUERY_REGISTRATION = auto()
+    QUERY_LOGIN = auto()
