@@ -13,8 +13,13 @@ class Windows():
     __ans2 = ''
     __ans3 = ''
     __winstr = []
-    __query = (None, None, None)
+    __query = Const.QUERY_NULL.value
     # ---------------------------------------------------
+    
+    def __init__(self, name_and_version: tuple):
+        self.app_name = name_and_version[0]
+        self.app_version = name_and_version[1]
+
 
     def sync_account(self, account: AccountData):
         """Связать модуль консоли(Окна) с аккаунтом, для синхронизации между окнами и контроллером."""
@@ -32,8 +37,8 @@ class Windows():
 
     def update_window(self):
         """Обновить показ окна(прежде наполняется инфой из переменных)."""
-        Console.message('============== ' + Const.PROG_NAME.value + ' ver. '
-                        + Const.PROG_VERSION.value + ' ==============\n')
+        Console.message('============== ' + self.app_name + ' ver. '
+                        + self.app_version + ' ==============\n')
         Console.warn(self.__warn + '\n')
 
         # переберём строки к показу
@@ -41,11 +46,15 @@ class Windows():
             Console.message(str)
 
     def add_query(self, data_for_query: tuple):
+        """Добавить кортёж с данными для запроса к БД."""
         self.__query = data_for_query
 
     def get_query(self) -> tuple:
         """Узнать запрос к БД(если такой имеется) из интерфейса."""
-        return self.__query  # ('id query', 'arg1', 'arg2...')
+        temp = self.__query
+        # отправим данные для запроса и очистим __query, только наоборот =]
+        self.__query = Const.QUERY_NULL.value
+        return temp  # ('id query', 'arg1', 'arg2', 'arg3')
     # ---------------------------------------------------
 
     # def window_wait(self):
@@ -89,9 +98,10 @@ class Windows():
         elif self.__ans1 == '2':
             self.set_window(GConst.WIN_REGISTRATION.value)
         else:
-            self.__warn = 'Введите одну из двух цифр(1 или 2), как указано выше.'
+            self.set_window(GConst.WIN_AUTHENTICATION.value,
+                            'Введите одну из двух цифр(1 или 2), как указано выше.')
 
-    def window_registrarion(self):
+    def window_registration(self):
         """Окно - (2.1). Регистрация."""
         #
         self.__winstr = [
@@ -140,8 +150,8 @@ class Windows():
     def window_main_menu(self):
         """Окно - (4). Главное меню."""
         self.__winstr = [
-            'Ваши ресурсы:',
             '[0] Добавить новый...(╯-_-)╯',
+            'Ваши ресурсы:',
         ]
         self.resources_append()
         self.update_window()
@@ -151,7 +161,11 @@ class Windows():
             self.set_window(GConst.WIN_AUTHENTICATION.value)
             # разлогинивается тут
             return
-        self.set_window(GConst.WIN_MAIN_MENU.value)
+        if self.__ans1 == "0":
+            self.set_window(GConst.WIN_ADD_RESOURCE.value)
+            return
+        # ? здесь выбираем добавление нового рес-а или просмотр имеющихся
+        self.set_window(GConst.WIN_MAIN_MENU.value, 'Недопустимый выбор! Попробуйте ещё раз.')
 
     def window_add_resource(self):
         """Окно - (5). Добавление нового ресурса."""
@@ -173,5 +187,11 @@ class Windows():
         if self.__ans3 == "":
             self.set_window(GConst.WIN_MAIN_MENU.value)
             return
-        self.set_window(GConst.WIN_MAIN_MENU.value)
-        self.__warn = 'Данные к новому ресурсу добавлены.'
+        # добавим новый в переменную и в БД по очереди
+        self.add_query((GConst.QUERY_ADD_RESOURCE.value,
+                       self.__ans1, self.__ans2, self.__ans3))
+        self.set_window(GConst.WIN_MAIN_MENU.value,
+                        'Данные к новому ресурсу добавлены.')
+
+    def window_view_resource(self):
+        pass

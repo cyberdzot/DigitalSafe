@@ -22,6 +22,7 @@ class SQLite(DataBase):
             Console.error(f"Подключение к БД 'SQLite' - ошибка: {e}.")
 
     def exec_query(self, query, args = ()):
+        """Выполнение SQL запроса без возвращения значений."""
         cursor = self.__connection.cursor()
         try:
             if args == ():
@@ -35,6 +36,7 @@ class SQLite(DataBase):
             Console.error(f"Запрос:\n{query}\nне выполнен - ошибка: {error}.")
 
     def exec_read_query(self, query, args = ()):
+        """Выполнение SQL запроса с возвращяемыми значениями."""
         cursor = self.__connection.cursor()
         try:
             if args == ():

@@ -2,19 +2,19 @@ from controller.consts import Const
 from global_consts.g_consts import GConst
 from ui.console.utils import Console
 from ui.console.windows import Windows
-from os import path, mkdir  # позже импортацию конкретезировать
+from os import path, mkdir  # todo позже импортацию конкретезировать
 from db.data_base_sqlite import SQLite
 from entities.account_data import AccountData
 
 
 class Core():
-    """Ядро программы(Контроллер)."""
+    """Ядро программы (Контроллер)."""
 
-    def start_program(self):
-        """Запуск программы."""
+    def run_application(self, name_and_version: tuple):
+        """Запуск ядра программы."""
         #
         self.db_init()
-        self.ui_init()
+        self.ui_init(name_and_version)
 
     def db_init(self):
         """Инициализация базы данных на старте программы."""
@@ -30,10 +30,10 @@ class Core():
         SQLite.exec_query(self.__sql_connect_account,
                           Const.NEW_TABLE_ACCOUNTS.value)
 
-    def ui_init(self):
+    def ui_init(self, name_and_version: tuple):
         """Запуск всего UI в консоли и дальнейшая работа в ней."""
         #
-        self.__windows = Windows()
+        self.__windows = Windows(name_and_version)
         #
         while True:
             Console.clear()
@@ -44,11 +44,13 @@ class Core():
                 case GConst.WIN_AUTHENTICATION.value:
                     self.__windows.window_authentication()
                 case GConst.WIN_REGISTRATION.value:
-                    self.__windows.window_registrarion()
+                    self.__windows.window_registration()
                 case GConst.WIN_LOGIN.value:
                     self.__windows.window_login()
                 case GConst.WIN_MAIN_MENU.value:
                     self.__windows.window_main_menu()
+                case GConst.WIN_ADD_RESOURCE.value:
+                    self.__windows.window_add_resource()
                 case GConst.WIN_EXIT.value:
                     # завершаем работу с приложением здесь...
                     break
@@ -63,7 +65,7 @@ class Core():
                     # если такого аккаунта нету - создаём новую запись в одну БД и новую таблицу в другую БД
                     if result_account == []:
                         SQLite.exec_query(
-                            self.__sql_connect_account, 'INSERT INTO users (name, pass) VALUES (?, ?)', args_for_query[1:])
+                            self.__sql_connect_account, 'INSERT INTO users (name, pass) VALUES (?, ?)', args_for_query[1:4])
                         SQLite.exec_query(self.__sql_connect_resources,
                                           'CREATE TABLE IF NOT EXISTS ' + args_for_query[1] +
                                           Const.NEW_TABLE_RESOURCES.value)
@@ -78,22 +80,31 @@ class Core():
                 case GConst.QUERY_LOGIN.value:
                     result_account = SQLite.exec_read_query(self.__sql_connect_account,
                                                             'SELECT name, pass FROM users WHERE name = ? AND pass = ?',
-                                                            (args_for_query[1], args_for_query[2]))
+                                                            args_for_query[1:3])
                     # если такого аккаунта нету - не впускаем и предупреждаем почему
                     if result_account == []:
                         self.__windows.set_window(
                             GConst.WIN_AUTHENTICATION.value, 'Неверно указан логин или пароль.')
                     else:
-                        # print(result_account[0][0])
-                        # print(result_account[0][1])
                         result_res = SQLite.exec_read_query(
                             self.__sql_connect_resources, 'SELECT * FROM ' + result_account[0][0])
                         self.__account = AccountData(
                             result_account[0][0], result_account[0][1], result_res)
                         self.__windows.sync_account(self.__account)
                         self.__windows.set_window(GConst.WIN_MAIN_MENU.value)
-            # обнуляем запрос
-            self.__windows.add_query((None, None, None))
-            # достать все ресурсы на аккаунте
-            # добавить ресурс в аккаунт
-            # удалить ресурс из аккаунта
+                # добавить новый ресурс(имя-логин-пароль)
+                case GConst.QUERY_ADD_RESOURCE.value:
+                    temp_data = self.__account.get_user_data()
+                    next_id = 1
+                    if temp_data != []:
+                        next_id = temp_data[-1][0] + 1
+                    # id, name, login, pass
+                    temp_data.append([next_id, *args_for_query[1:4]])
+                    self.__account.set_user_data(temp_data)
+                    SQLite.exec_query(self.__sql_connect_resources,
+                                      'INSERT INTO ' + self.__account.get_user_name() +
+                                      ' (resource, login, pass) VALUES (?, ?, ?)', args_for_query[1:4])
+                # удаление выбранного ресурса
+                # case GConst.QUERY_DEL_RESOURCE.value:
+                    # pass
+            # todo удалить ресурс из аккаунта
