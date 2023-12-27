@@ -10,6 +10,7 @@ class GConst(Enum):
     WIN_WAITING = auto()
     WIN_MAIN_MENU = auto()
     WIN_ADD_RESOURCE = auto()
+    WIN_VIEW_RESOURCE = auto()
     WIN_AUTHENTICATION = auto()
     WIN_REGISTRATION = auto()
     WIN_LOGIN = auto()
@@ -17,3 +18,4 @@ class GConst(Enum):
     QUERY_REGISTRATION = auto()
     QUERY_LOGIN = auto()
     QUERY_ADD_RESOURCE = auto()
+    QUERY_DEL_RESOURCE = auto()

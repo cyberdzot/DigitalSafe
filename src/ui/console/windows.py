@@ -2,9 +2,10 @@ from global_consts.g_consts import GConst
 from ui.console.consts import Const
 from ui.console.utils import Console
 from entities.account_data import AccountData
+import pyperclip
 
 
-class Windows():
+class Windows:
     """Окна для консоли."""
 
     __open_window = GConst.WIN_MANUAL.value
@@ -15,14 +16,15 @@ class Windows():
     __winstr = []
     __query = Const.QUERY_NULL.value
     # ---------------------------------------------------
-    
+
     def __init__(self, name_and_version: tuple):
         self.app_name = name_and_version[0]
         self.app_version = name_and_version[1]
 
-
     def sync_account(self, account: AccountData):
-        """Связать модуль консоли(Окна) с аккаунтом, для синхронизации между окнами и контроллером."""
+        """Связать модули консоли(Окна) с аккаунтом,
+        для синхронизации между окнами и контроллером.
+        """
         self.__account = account
 
     def set_window(self, window: int, warn=''):
@@ -33,12 +35,15 @@ class Windows():
     def get_window(self) -> int:
         """Узнать текущее отображаемое окно."""
         return self.__open_window
+
     # ---------------------------------------------------
 
     def update_window(self):
         """Обновить показ окна(прежде наполняется инфой из переменных)."""
-        Console.message('============== ' + self.app_name + ' ver. '
-                        + self.app_version + ' ==============\n')
+        Console.message(
+            '============== ' + self.app_name + ' ver. ' + self.app_version + ' =============='
+        )
+        Console.message('                     (╯-_-)╯')
         Console.warn(self.__warn + '\n')
 
         # переберём строки к показу
@@ -55,6 +60,7 @@ class Windows():
         # отправим данные для запроса и очистим __query, только наоборот =]
         self.__query = Const.QUERY_NULL.value
         return temp  # ('id query', 'arg1', 'arg2', 'arg3')
+
     # ---------------------------------------------------
 
     # def window_wait(self):
@@ -69,13 +75,12 @@ class Windows():
             'в программе для хранения данных(в формате "Ресурс-Логин-Пароль").',
             'На любой стадии исполнения программы отправьте пустой ввод,',
             'чтобы вернуться на предыдущее окно в консоли,',
-            'на данном этапе это закрытие программы.'
+            'на данном этапе это закрытие программы.',
         ]
         self.update_window()
         #
-        self.__ans1 = input(
-            '\nВведите любую цифру(или символ) и нажмите ввод, чтобы продолжить...')
-        if self.__ans1 == "":
+        self.__ans1 = input('\nВведите любую цифру(или символ) и нажмите ввод, чтобы продолжить...')
+        if self.__ans1 == '':
             self.set_window(GConst.WIN_EXIT.value)
             return
         self.set_window(GConst.WIN_AUTHENTICATION.value)
@@ -89,7 +94,7 @@ class Windows():
         self.update_window()
         #
         self.__ans1 = input('\nВведите цифру: ')
-        if self.__ans1 == "":
+        if self.__ans1 == '':
             self.set_window(GConst.WIN_MANUAL.value)
             return
         #
@@ -98,8 +103,10 @@ class Windows():
         elif self.__ans1 == '2':
             self.set_window(GConst.WIN_REGISTRATION.value)
         else:
-            self.set_window(GConst.WIN_AUTHENTICATION.value,
-                            'Введите одну из двух цифр(1 или 2), как указано выше.')
+            self.set_window(
+                GConst.WIN_AUTHENTICATION.value,
+                'Введите одну из двух цифр(1 или 2), как указано выше.',
+            )
 
     def window_registration(self):
         """Окно - (2.1). Регистрация."""
@@ -110,15 +117,14 @@ class Windows():
         self.update_window()
         #
         self.__ans1 = input('Введите логин: ')
-        if self.__ans1 == "":
+        if self.__ans1 == '':
             self.set_window(GConst.WIN_AUTHENTICATION.value)
             return
         self.__ans2 = input('Введите пароль: ')
-        if self.__ans2 == "":
+        if self.__ans2 == '':
             self.set_window(GConst.WIN_AUTHENTICATION.value)
             return
-        self.add_query((GConst.QUERY_REGISTRATION.value,
-                       self.__ans1, self.__ans2))
+        self.add_query((GConst.QUERY_REGISTRATION.value, self.__ans1, self.__ans2))
 
     def window_login(self):
         """Окно - (3). Вход."""
@@ -129,11 +135,11 @@ class Windows():
         self.update_window()
         #
         self.__ans1 = input('Введите логин: ')
-        if self.__ans1 == "":
+        if self.__ans1 == '':
             self.set_window(GConst.WIN_AUTHENTICATION.value)
             return
         self.__ans2 = input('Введите пароль: ')
-        if self.__ans2 == "":
+        if self.__ans2 == '':
             self.set_window(GConst.WIN_AUTHENTICATION.value)
             return
         self.add_query((GConst.QUERY_LOGIN.value, self.__ans1, self.__ans2))
@@ -150,21 +156,34 @@ class Windows():
     def window_main_menu(self):
         """Окно - (4). Главное меню."""
         self.__winstr = [
-            '[0] Добавить новый...(╯-_-)╯',
+            '[0] ...Добавить новый...',
             'Ваши ресурсы:',
         ]
         self.resources_append()
         self.update_window()
         #
         self.__ans1 = input('Введите цифру: ')
-        if self.__ans1 == "":
+        if self.__ans1 == '':
+            # если пустой ввод - разлогиниваемся
             self.set_window(GConst.WIN_AUTHENTICATION.value)
-            # разлогинивается тут
             return
-        if self.__ans1 == "0":
+        elif self.__ans1 == '0':
+            # добавляем ресурс
             self.set_window(GConst.WIN_ADD_RESOURCE.value)
             return
-        # ? здесь выбираем добавление нового рес-а или просмотр имеющихся
+
+        # запоминаем выбранный ресурс из списка
+        for row in self.__account.get_user_data():
+            # 0-id 1-resname 2-login 3-pass
+            # concat = f'{row[0]} {row[1]} {row[2]} {row[3]}'
+            # concat = " ".join(row)
+            ans1_int = int(self.__ans1)
+            if ans1_int == row[0]:
+                self.__view_resource = row
+                self.set_window(GConst.WIN_VIEW_RESOURCE.value)
+                return
+            if ans1_int < row[0]:
+                break
         self.set_window(GConst.WIN_MAIN_MENU.value, 'Недопустимый выбор! Попробуйте ещё раз.')
 
     def window_add_resource(self):
@@ -176,22 +195,53 @@ class Windows():
         self.update_window()
         #
         self.__ans1 = input('Введите название: ')
-        if self.__ans1 == "":
+        if self.__ans1 == '':
             self.set_window(GConst.WIN_MAIN_MENU.value)
             return
         self.__ans2 = input('Введите логин: ')
-        if self.__ans2 == "":
+        if self.__ans2 == '':
             self.set_window(GConst.WIN_MAIN_MENU.value)
             return
         self.__ans3 = input('Введите пароль: ')
-        if self.__ans3 == "":
+        if self.__ans3 == '':
             self.set_window(GConst.WIN_MAIN_MENU.value)
             return
         # добавим новый в переменную и в БД по очереди
-        self.add_query((GConst.QUERY_ADD_RESOURCE.value,
-                       self.__ans1, self.__ans2, self.__ans3))
-        self.set_window(GConst.WIN_MAIN_MENU.value,
-                        'Данные к новому ресурсу добавлены.')
+        self.add_query((GConst.QUERY_ADD_RESOURCE.value, self.__ans1, self.__ans2, self.__ans3))
+        self.set_window(GConst.WIN_MAIN_MENU.value, 'Данные к новому ресурсу добавлены.')
 
     def window_view_resource(self):
-        pass
+        """Окно - (6). Просмотр ресурса."""
+        self.__winstr = [
+            'Вы можете выбрать выбрать цифру от 1 до 3, чтобы скопировать данные в буфер обмена',
+            '[0] ...Стереть эти данные...',
+            'Данные:',
+            # ? тут можно будет выводить ID ресурса, чтобы можно было менять ID
+        ]
+        self.__winstr.append('[1] Ресурс:\t' + (self.__view_resource[1]))
+        self.__winstr.append('[2] Логин:\t' + self.__view_resource[2])
+        self.__winstr.append('[3] Пароль:\t' + self.__view_resource[3])
+
+        self.update_window()
+        #
+        self.__ans1 = input('Введите цифру: ')
+        match self.__ans1:
+            case '':
+                # возвращаемся назад
+                self.__view_resource = None
+                self.set_window(GConst.WIN_MAIN_MENU.value)
+            case '0':
+                # ! удаляем ресурс по ID(self.__view_resource[0]) и возвращаемся назад
+                self.add_query((GConst.QUERY_DEL_RESOURCE.value, self.__view_resource[0]))
+                self.__view_resource = None
+                self.set_window(GConst.WIN_MAIN_MENU.value)
+            case '1' | '2' | '3':
+                pyperclip.copy(self.__view_resource[int(self.__ans1)])
+                self.set_window(
+                    GConst.WIN_VIEW_RESOURCE.value,
+                    'Выбранные данные успешно скопированы в буфер обмена.',
+                )
+            case _:
+                self.set_window(
+                    GConst.WIN_VIEW_RESOURCE.value, 'Недопустимый выбор! Попробуйте ещё раз.'
+                )

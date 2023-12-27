@@ -9,3 +9,6 @@ programming_plan.md
 
 # базы данных
 *.sqlite
+
+# ruff настройки
+ruff.toml

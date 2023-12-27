@@ -1,4 +1,4 @@
-class AccountData():
+class AccountData:
     """Сущность пользователя и его учётных данных."""
 
     def __init__(self, username: str, password: str, data: list):
@@ -21,3 +21,4 @@ class AccountData():
     def set_user_data(self, data: list):
         """Заменить учётные данные пользователя на новые."""
         self.__userdata = data
+        # data = [ id INT, resource STR, login STR, pass STR]
