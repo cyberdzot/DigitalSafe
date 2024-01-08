@@ -118,22 +118,28 @@ class Core:
                     next_id = 1
                     if temp_data != []:
                         next_id = temp_data[-1][0] + 1
-                    # id, name, login, pass
+                    # id, resname, login, pass
                     temp_data.append([next_id, *args_for_query[1:4]])
                     self.__account.set_user_data(temp_data)
                     SQLite.exec_query(
                         self.__sql_connect_resources,
                         'INSERT INTO '
                         + self.__account.get_user_name()
-                        + ' (resource, login, pass) VALUES (?, ?, ?)',
-                        args_for_query[1:4],
+                        + ' (id, resource, login, pass) VALUES (?, ?, ?, ?)',
+                        (next_id, *args_for_query[1:4])
                     )
                 # ! удалить выбранный ресурс
                 case GConst.QUERY_DEL_RESOURCE.value:
-                    # удалить с кеша
-                    # temp_data = self.__account.get_user_data()
+                    resource = args_for_query[1]
+                    # ? удалить с кеша
+                    temp_data = self.__account.get_user_data()
+                    temp_data.remove(resource)
+                    # self.__account.set_user_data(temp_data)
                     # удалить с БД
                     SQLite.exec_query(
                         self.__sql_connect_resources,
-                        'DELETE FROM ? WHERE id = ?', ('user', 'id'),
+                        'DELETE FROM ' + self.__account.get_user_name() + ' WHERE id = ?',
+                        (resource[0],),
                     )
+                    # обновить окно, так как сперва обновляются окна, потом выполняются запросы
+                    self.__windows.update_window()

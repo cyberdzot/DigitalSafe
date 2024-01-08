@@ -13,10 +13,11 @@ class Const(Enum):
     )
     """
 
-    # часть запроса для создания таблицы пользователя
+    # часть запроса для создания таблицы с ресурсами для пользователя
+    # id INTEGER PRIMARY KEY AUTOINCREMENT,
     NEW_TABLE_RESOURCES = """
     (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER PRIMARY KEY,
         resource TEXT NOT NULL,
         login TEXT NOT NULL,
         pass TEXT NOT NULL

@@ -57,7 +57,7 @@ class Windows:
     def get_query(self) -> tuple:
         """Узнать запрос к БД(если такой имеется) из интерфейса."""
         temp = self.__query
-        # отправим данные для запроса и очистим __query, только наоборот =]
+        # отправка и очистка запроса, чтобы не зацикливало в core
         self.__query = Const.QUERY_NULL.value
         return temp  # ('id query', 'arg1', 'arg2', 'arg3')
 
@@ -148,8 +148,9 @@ class Windows:
         """Добавить имеющиеся ресурсы в список главного меню."""
         for row in self.__account.get_user_data():
             concat = '[' + str(row[0]) + ']'
-            for col in row[1:]:
+            for col in row[1:3]:
                 concat = concat + ' ' + str(col)
+            concat = concat + ' ******'
             self.__winstr.append(concat)
         self.__winstr.append('')
 
@@ -231,8 +232,10 @@ class Windows:
                 self.__view_resource = None
                 self.set_window(GConst.WIN_MAIN_MENU.value)
             case '0':
-                # ! удаляем ресурс по ID(self.__view_resource[0]) и возвращаемся назад
-                self.add_query((GConst.QUERY_DEL_RESOURCE.value, self.__view_resource[0]))
+                # ! удаляем ресурс по значению,
+                # то бишь список со значенияеми (self.__view_resource)
+                # и возвращаемся назад
+                self.add_query((GConst.QUERY_DEL_RESOURCE.value, self.__view_resource))
                 self.__view_resource = None
                 self.set_window(GConst.WIN_MAIN_MENU.value)
             case '1' | '2' | '3':

@@ -21,4 +21,4 @@ class AccountData:
     def set_user_data(self, data: list):
         """Заменить учётные данные пользователя на новые."""
         self.__userdata = data
-        # data = [ id INT, resource STR, login STR, pass STR]
+        # data = [ id: int, resname: str, login: str, pass: str]
