@@ -1,4 +1,4 @@
-# Digital Safe [ver. 0.2.0]
+# Digital Safe [ver. 0.3]
 
 Возможности этой версии:
 
