@@ -2,7 +2,8 @@ from global_consts.g_consts import GConst
 from ui.console.consts import Const
 from ui.console.utils import Console
 from entities.account_data import AccountData
-import pyperclip
+from entities.hash import Hash
+from pyperclip import copy as copy_in_buffer
 
 
 class Windows:
@@ -124,6 +125,7 @@ class Windows:
         if self.__ans2 == '':
             self.set_window(GConst.WIN_AUTHENTICATION.value)
             return
+        self.__ans2 = Hash().get(self.__ans2)
         self.add_query((GConst.QUERY_REGISTRATION.value, self.__ans1, self.__ans2))
 
     def window_login(self):
@@ -142,6 +144,7 @@ class Windows:
         if self.__ans2 == '':
             self.set_window(GConst.WIN_AUTHENTICATION.value)
             return
+        self.__ans2 = Hash().get(self.__ans2)
         self.add_query((GConst.QUERY_LOGIN.value, self.__ans1, self.__ans2))
 
     def resources_append(self):
@@ -232,14 +235,14 @@ class Windows:
                 self.__view_resource = None
                 self.set_window(GConst.WIN_MAIN_MENU.value)
             case '0':
-                # ! удаляем ресурс по значению,
+                # удаляем ресурс по значению,
                 # то бишь список со значенияеми (self.__view_resource)
                 # и возвращаемся назад
                 self.add_query((GConst.QUERY_DEL_RESOURCE.value, self.__view_resource))
                 self.__view_resource = None
                 self.set_window(GConst.WIN_MAIN_MENU.value)
             case '1' | '2' | '3':
-                pyperclip.copy(self.__view_resource[int(self.__ans1)])
+                copy_in_buffer(self.__view_resource[int(self.__ans1)])
                 self.set_window(
                     GConst.WIN_VIEW_RESOURCE.value,
                     'Выбранные данные успешно скопированы в буфер обмена.',

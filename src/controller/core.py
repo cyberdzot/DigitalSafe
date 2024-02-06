@@ -2,7 +2,8 @@ from controller.consts import Const
 from global_consts.g_consts import GConst
 from ui.console.utils import Console
 from ui.console.windows import Windows
-from os import path, mkdir  # todo позже импортацию конкретезировать
+from os.path import dirname, realpath, isdir
+from os import mkdir
 from db.data_base_sqlite import SQLite
 from entities.account_data import AccountData
 
@@ -12,19 +13,19 @@ class Core:
 
     def run_application(self, name_and_version: tuple):
         """Запуск ядра программы."""
-        #
+        # инициализируем нужные модули
         self.db_init()
         self.ui_init(name_and_version)
 
     def db_init(self):
         """Инициализация базы данных на старте программы."""
-        #
-        data_dir = path.dirname(path.realpath(__file__)) + '\\data'
-        if not path.isdir(data_dir):
+        # настраиваем путь к директории БД и открываем соединения с БД
+        data_dir = dirname(realpath(__file__)) + '\\data'
+        if not isdir(data_dir):
             mkdir(data_dir)
         self.__sql_connect_account = SQLite(data_dir + '\\test_account.sqlite', False)
         self.__sql_connect_resources = SQLite(data_dir + '\\test_resources.sqlite', False)
-        # создать таблицу если её нету:
+        # создаём таблицу аккаунтов если её нету:
         SQLite.exec_query(self.__sql_connect_account, Const.NEW_TABLE_ACCOUNTS.value)
 
     def ui_init(self, name_and_version: tuple):
@@ -34,7 +35,7 @@ class Core:
         #
         while True:
             Console.clear()
-            # отрисуем окно в консоли
+            # отрисуем выбранное окно в консоли
             match self.__windows.get_window():
                 case GConst.WIN_MANUAL.value:
                     self.__windows.window_manual()
@@ -98,7 +99,7 @@ class Core:
                         'SELECT name, pass FROM users WHERE name = ? AND pass = ?',
                         args_for_query[1:3],
                     )
-                    # если такого аккаунта нету - не впускаем и предупреждаем почему
+                    # если такого аккаунта нету - не впускаем с предупреждением
                     if result_account == []:
                         self.__windows.set_window(
                             GConst.WIN_AUTHENTICATION.value, 'Неверно указан логин или пароль.'
@@ -118,7 +119,7 @@ class Core:
                     next_id = 1
                     if temp_data != []:
                         next_id = temp_data[-1][0] + 1
-                    # id, resname, login, pass
+                    # id, *resname, login, pass
                     temp_data.append([next_id, *args_for_query[1:4]])
                     self.__account.set_user_data(temp_data)
                     SQLite.exec_query(
@@ -126,20 +127,20 @@ class Core:
                         'INSERT INTO '
                         + self.__account.get_user_name()
                         + ' (id, resource, login, pass) VALUES (?, ?, ?, ?)',
-                        (next_id, *args_for_query[1:4])
+                        (next_id, *args_for_query[1:4]),
                     )
-                # ! удалить выбранный ресурс
+                # удалить выбранный ресурс
                 case GConst.QUERY_DEL_RESOURCE.value:
                     resource = args_for_query[1]
-                    # ? удалить с кеша
+                    # удалить с кеша
                     temp_data = self.__account.get_user_data()
                     temp_data.remove(resource)
-                    # self.__account.set_user_data(temp_data)
                     # удалить с БД
                     SQLite.exec_query(
                         self.__sql_connect_resources,
                         'DELETE FROM ' + self.__account.get_user_name() + ' WHERE id = ?',
                         (resource[0],),
                     )
-                    # обновить окно, так как сперва обновляются окна, потом выполняются запросы
+                    # обновить окно, так как по умолчанию сперва обновляются окна,
+                    # потом выполняются запросы
                     self.__windows.update_window()
