@@ -236,7 +236,9 @@ class Windows:
             "Данные:",
             # ? тут можно будет выводить ID ресурса, чтобы можно было менять ID
         ]
-        decrypt_data = self.__cipher.aesCbcPbkdf2DecryptFromBase64(self.__view_resource[3])
+        decrypt_data = self.__cipher.aesCbcPbkdf2DecryptFromBase64(
+            self.__view_resource[3]
+        )
         self.__winstr.append("[1] Ресурс:\t" + (self.__view_resource[1]))
         self.__winstr.append("[2] Логин:\t" + self.__view_resource[2])
         self.__winstr.append("[3] Пароль:\t" + decrypt_data)

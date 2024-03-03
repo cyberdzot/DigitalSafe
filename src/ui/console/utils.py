@@ -7,22 +7,22 @@ class Console:
 
     def error(string):
         """Сообщение об ошибке, вывод красного текста в консоль."""
-        print(f'\033[31m[ОШИБКА] {string}\033[0m')
+        print(f"\033[31m[ОШИБКА] {string}\033[0m")
 
     def warn(string):
         """Сообщение о предупреждении, вывод жёлтого текста в консоль."""
-        if string == '' or string == '\n':
-            print('')
+        if string == "" or string == "\n":
+            print("")
         else:
-            print(f'\033[33m[ВНИМАНИЕ] {string}\033[0m')
+            print(f"\033[33m[ВНИМАНИЕ] {string}\033[0m")
 
     def succes(string):
         """Сообщение об успехе, вывод зелёного текста в консоль."""
-        print(f'\033[32m[УСПЕХ] {string}\033[0m')
+        print(f"\033[32m[УСПЕХ] {string}\033[0m")
 
     def message(string):
         """Простое сообщение, вывод бирюзового текста в консоль."""
-        print(f'\033[36m{string}\033[0m')
+        print(f"\033[36m{string}\033[0m")
 
 
 class Other:
