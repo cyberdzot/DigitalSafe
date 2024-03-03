@@ -4,7 +4,7 @@
 # полигон для тестов
 \tests
 
-# великолепный план Уолтер...
+# план
 programming_plan.md
 
 # базы данных
@@ -12,3 +12,9 @@ programming_plan.md
 
 # ruff настройки
 ruff.toml
+
+# pyinstaller сборка
+\build
+\dist
+*.ico
+*.spec

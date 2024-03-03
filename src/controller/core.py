@@ -6,6 +6,7 @@ from os.path import dirname, realpath, isdir
 from os import mkdir
 from db.data_base_sqlite import SQLite
 from entities.account_data import AccountData
+from entities.scrambler import Cipher
 
 
 class Core:
@@ -13,22 +14,26 @@ class Core:
 
     def run_application(self, name_and_version: tuple):
         """Запуск ядра программы."""
+        # создание шифратора/дешифратора с каким то своим постоянным ключём
+        cipher = Cipher("0i&2M*2Hsq^rWLt1")
         # инициализируем нужные модули
         self.db_init()
-        self.ui_init(name_and_version)
+        self.ui_init(name_and_version, cipher)
 
     def db_init(self):
         """Инициализация базы данных на старте программы."""
         # настраиваем путь к директории БД и открываем соединения с БД
-        data_dir = dirname(realpath(__file__)) + '\\data'
+        data_dir = dirname(realpath(__file__)) + "\\data"
         if not isdir(data_dir):
             mkdir(data_dir)
-        self.__sql_connect_account = SQLite(data_dir + '\\test_account.sqlite', False)
-        self.__sql_connect_resources = SQLite(data_dir + '\\test_resources.sqlite', False)
+        self.__sql_connect_account = SQLite(data_dir + "\\test_account.sqlite", False)
+        self.__sql_connect_resources = SQLite(
+            data_dir + "\\test_resources.sqlite", False
+        )
         # создаём таблицу аккаунтов если её нету:
         SQLite.exec_query(self.__sql_connect_account, Const.NEW_TABLE_ACCOUNTS.value)
 
-    def ui_init(self, name_and_version: tuple):
+    def ui_init(self, name_and_version: tuple, cipher: Cipher):
         """Запуск всего UI в консоли и дальнейшая работа в ней."""
         #
         self.__windows = Windows(name_and_version)
@@ -62,7 +67,7 @@ class Core:
                 case GConst.QUERY_REGISTRATION.value:
                     result_account = SQLite.exec_read_query(
                         self.__sql_connect_account,
-                        'SELECT name FROM users WHERE name = ?',
+                        "SELECT name FROM users WHERE name = ?",
                         (args_for_query[1],),
                     )
                     # если такого аккаунта нету - создаём новую запись в одну БД
@@ -70,48 +75,50 @@ class Core:
                     if result_account == []:
                         SQLite.exec_query(
                             self.__sql_connect_account,
-                            'INSERT INTO users (name, pass) VALUES (?, ?)',
+                            "INSERT INTO users (name, pass) VALUES (?, ?)",
                             args_for_query[1:4],
                         )
                         SQLite.exec_query(
                             self.__sql_connect_resources,
-                            'CREATE TABLE IF NOT EXISTS '
+                            "CREATE TABLE IF NOT EXISTS "
                             + args_for_query[1]
                             + Const.NEW_TABLE_RESOURCES.value,
                         )
                         self.__windows.set_window(
                             GConst.WIN_AUTHENTICATION.value,
-                            'Аккаунт с именем '
+                            "Аккаунт с именем "
                             + args_for_query[1]
-                            + ' успешно зарегистрирован в базе, теперь можно войти.',
+                            + " успешно зарегистрирован в базе, теперь можно войти.",
                         )
                     else:
                         self.__windows.set_window(
                             GConst.WIN_AUTHENTICATION.value,
-                            'Аккаунт с именем '
+                            "Аккаунт с именем "
                             + args_for_query[1]
-                            + ' уже зарегистрирован в базе, придумайте себе другое имя!',
+                            + " уже зарегистрирован в базе, придумайте себе другое имя!",
                         )
                 #
                 case GConst.QUERY_LOGIN.value:
                     result_account = SQLite.exec_read_query(
                         self.__sql_connect_account,
-                        'SELECT name, pass FROM users WHERE name = ? AND pass = ?',
+                        "SELECT name, pass FROM users WHERE name = ? AND pass = ?",
                         args_for_query[1:3],
                     )
                     # если такого аккаунта нету - не впускаем с предупреждением
                     if result_account == []:
                         self.__windows.set_window(
-                            GConst.WIN_AUTHENTICATION.value, 'Неверно указан логин или пароль.'
+                            GConst.WIN_AUTHENTICATION.value,
+                            "Неверно указан логин или пароль.",
                         )
                     else:
                         result_res = SQLite.exec_read_query(
-                            self.__sql_connect_resources, 'SELECT * FROM ' + result_account[0][0]
+                            self.__sql_connect_resources,
+                            "SELECT * FROM " + result_account[0][0],
                         )
                         self.__account = AccountData(
                             result_account[0][0], result_account[0][1], result_res
                         )
-                        self.__windows.sync_account(self.__account)
+                        self.__windows.sync_account(self.__account, cipher)
                         self.__windows.set_window(GConst.WIN_MAIN_MENU.value)
                 # добавить новый ресурс(имя-логин-пароль)
                 case GConst.QUERY_ADD_RESOURCE.value:
@@ -124,9 +131,9 @@ class Core:
                     self.__account.set_user_data(temp_data)
                     SQLite.exec_query(
                         self.__sql_connect_resources,
-                        'INSERT INTO '
+                        "INSERT INTO "
                         + self.__account.get_user_name()
-                        + ' (id, resource, login, pass) VALUES (?, ?, ?, ?)',
+                        + " (id, resource, login, pass) VALUES (?, ?, ?, ?)",
                         (next_id, *args_for_query[1:4]),
                     )
                 # удалить выбранный ресурс
@@ -138,7 +145,9 @@ class Core:
                     # удалить с БД
                     SQLite.exec_query(
                         self.__sql_connect_resources,
-                        'DELETE FROM ' + self.__account.get_user_name() + ' WHERE id = ?',
+                        "DELETE FROM "
+                        + self.__account.get_user_name()
+                        + " WHERE id = ?",
                         (resource[0],),
                     )
                     # обновить окно, так как по умолчанию сперва обновляются окна,

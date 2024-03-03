@@ -52,16 +52,16 @@ class Cipher:
         return decryptedtextP
 
 # создаём шифратор с введёным ключём
-cipher = Cipher("0i&2M*2Hsq^rWLt1")
+# cipher = Cipher("0i&2M*2Hsq^rWLt1")
 
 # текст для шифрования
-plaintext = "Проверка Check 1234!$^(*)ЫафQsf"
-print("plaintext: " + plaintext)
+# plaintext = "Проверка Check 1234!$^(*)ЫафQsf"
+# print("plaintext: " + plaintext)
 
-print("\n* * * Encryption * * *") 
-ciphertextBase64 = cipher.aesCbcPbkdf2EncryptToBase64(plaintext)
-print("ciphertext: " + ciphertextBase64)
+# print("\n* * * Encryption * * *") 
+# ciphertextBase64 = cipher.aesCbcPbkdf2EncryptToBase64(plaintext)
+# print("ciphertext: " + ciphertextBase64)
 
-print("\n* * * Decryption * * *") 
-decryptedtext = cipher.aesCbcPbkdf2DecryptFromBase64(ciphertextBase64)
-print("plaintext: " + decryptedtext)
+# print("\n* * * Decryption * * *") 
+# decryptedtext = cipher.aesCbcPbkdf2DecryptFromBase64(ciphertextBase64)
+# print("plaintext: " + decryptedtext)
