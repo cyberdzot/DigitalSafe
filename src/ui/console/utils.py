@@ -1,34 +1,41 @@
+from os import system
+from colorama import init, Fore
+
+
 class Console:
     """Библиотека для работы с консолью."""
 
-    def clear():
+    def __init__(self):
+        init(autoreset=True)
+
+    def clear(self):
         """Имитация очистки консоли."""
-        print("\033[H\033[J")
+        system("cls")
 
-    def error(string):
+    def error(self, string: str):
         """Сообщение об ошибке, вывод красного текста в консоль."""
-        print(f"\033[31m[ОШИБКА] {string}\033[0m")
+        print(f"{Fore.RED}[ОШИБКА] {string}")
 
-    def warn(string):
+    def warn(self, string: str):
         """Сообщение о предупреждении, вывод жёлтого текста в консоль."""
         if string == "" or string == "\n":
             print("")
         else:
-            print(f"\033[33m[ВНИМАНИЕ] {string}\033[0m")
+            print(f"{Fore.YELLOW}[ВНИМАНИЕ] {string}")
 
-    def succes(string):
+    def succes(self, string: str):
         """Сообщение об успехе, вывод зелёного текста в консоль."""
-        print(f"\033[32m[УСПЕХ] {string}\033[0m")
+        print(f"{Fore.GREEN}[УСПЕХ] {string}")
 
-    def message(string):
-        """Простое сообщение, вывод бирюзового текста в консоль."""
-        print(f"\033[36m{string}\033[0m")
+    def message(self, string: str):
+        """Простое сообщение, вывод бирюзового/голубого текста в консоль."""
+        print(f"{Fore.CYAN}{string}")
 
 
 class Other:
     """Библиотека с разными инструментами."""
 
-    def contains_char_in_digits(string):
+    def contains_char_in_digits(string: str) -> bool:
         """Проверка строки на то, что в ней по мимо цифр есть символы."""
         for char in string:
             if not char.isdigit():

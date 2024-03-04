@@ -2,8 +2,8 @@ from controller.consts import Const
 from global_consts.g_consts import GConst
 from ui.console.utils import Console
 from ui.console.windows import Windows
-from os.path import dirname, realpath, isdir
-from os import mkdir
+from os.path import isdir
+from os import mkdir, getcwd
 from db.data_base_sqlite import SQLite
 from entities.account_data import AccountData
 from entities.scrambler import Cipher
@@ -15,31 +15,40 @@ class Core:
     def run_application(self, name_and_version: tuple):
         """Запуск ядра программы."""
         # создание шифратора/дешифратора с каким то своим постоянным ключём
-        cipher = Cipher("0i&2M*2Hsq^rWLt1")
-        # инициализируем нужные модули
+        self.__cipher = Cipher("0i&2M*2Hsq^rWLt1")
+
+        # инициализация консоли
+        self.__console = Console()
+
+        # подключение к базе данных или сначала её инициализация(если первый запуск)
         self.db_init()
-        self.ui_init(name_and_version, cipher)
+
+        # запуск интерфейса
+        self.ui_init(name_and_version)
 
     def db_init(self):
         """Инициализация базы данных на старте программы."""
+
         # настраиваем путь к директории БД и открываем соединения с БД
-        data_dir = dirname(realpath(__file__)) + "\\data"
+        data_dir = getcwd() + "\\data"
         if not isdir(data_dir):
             mkdir(data_dir)
-        self.__sql_connect_account = SQLite(data_dir + "\\test_account.sqlite", False)
+        self.__sql_connect_account = SQLite(
+            self.__console, data_dir + "\\test_account.sqlite", False
+        )
         self.__sql_connect_resources = SQLite(
-            data_dir + "\\test_resources.sqlite", False
+            self.__console, data_dir + "\\test_resources.sqlite", False
         )
         # создаём таблицу аккаунтов если её нету:
         SQLite.exec_query(self.__sql_connect_account, Const.NEW_TABLE_ACCOUNTS.value)
 
-    def ui_init(self, name_and_version: tuple, cipher: Cipher):
+    def ui_init(self, name_and_version: tuple):
         """Запуск всего UI в консоли и дальнейшая работа в ней."""
         #
-        self.__windows = Windows(name_and_version)
+        self.__windows = Windows(self.__console, name_and_version)
         #
         while True:
-            Console.clear()
+            self.__console.clear()
             # отрисуем выбранное окно в консоли
             match self.__windows.get_window():
                 case GConst.WIN_MANUAL.value:
@@ -118,7 +127,7 @@ class Core:
                         self.__account = AccountData(
                             result_account[0][0], result_account[0][1], result_res
                         )
-                        self.__windows.sync_account(self.__account, cipher)
+                        self.__windows.sync_account(self.__account, self.__cipher)
                         self.__windows.set_window(GConst.WIN_MAIN_MENU.value)
                 # добавить новый ресурс(имя-логин-пароль)
                 case GConst.QUERY_ADD_RESOURCE.value:

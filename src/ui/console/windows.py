@@ -19,9 +19,10 @@ class Windows:
     __query = Const.QUERY_NULL.value
     # ---------------------------------------------------
 
-    def __init__(self, name_and_version: tuple):
-        self.app_name = name_and_version[0]
-        self.app_version = name_and_version[1]
+    def __init__(self, console: Console, name_and_version: tuple):
+        self.__app_name = name_and_version[0]
+        self.__app_version = name_and_version[1]
+        self.__console = console
 
     def sync_account(self, account: AccountData, cipher: Cipher):
         """Начальная синхронизация аккаунта для связки UI с Core."""
@@ -41,19 +42,19 @@ class Windows:
 
     def update_window(self):
         """Обновить показ окна(прежде наполняется инфой из переменных)."""
-        Console.message(
+        self.__console.message(
             "============== "
-            + self.app_name
+            + self.__app_name
             + " ver. "
-            + self.app_version
+            + self.__app_version
             + " =============="
         )
-        Console.message("                     (╯-_-)╯")
-        Console.warn(self.__warn + "\n")
+        self.__console.message("                     (╯-_-)╯")
+        self.__console.warn(self.__warn + "\n")
 
         # переберём строки к показу
         for str in self.__winstr:
-            Console.message(str)
+            self.__console.message(str)
 
     def add_query(self, data_for_query: tuple):
         """Добавить кортёж с данными для запроса к БД."""
