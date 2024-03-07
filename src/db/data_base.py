@@ -1,3 +1,5 @@
+"""Модуль, отвечающий за интерфейс для баз данных."""
+
 from abc import ABC, abstractmethod
 
 
@@ -6,7 +8,6 @@ class DataBase(ABC):
 
     @abstractmethod
     def __init__(self):
-        """Инициализация и подключение базы данных."""
         pass
 
     @abstractmethod

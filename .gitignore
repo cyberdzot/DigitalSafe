@@ -4,8 +4,8 @@
 # полигон для тестов
 \tests
 
-# план
-programming_plan.md
+# черновик
+DRAFT.md
 
 # базы данных
 *.sqlite

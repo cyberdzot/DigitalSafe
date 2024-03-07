@@ -1,3 +1,5 @@
+"""Модуль, отвечающий за работу с SQLite."""
+
 from db.data_base import DataBase
 from ui.console.utils import Console
 from sqlite3 import connect, Error
@@ -20,7 +22,8 @@ class SQLite(DataBase):
             if is_log_suc:
                 self.__console.succes("Подключение к БД 'SQLite' - выполнено.")
         except Error as error:
-            self.__console.error(f"Подключение к БД 'SQLite' - ошибка: {error}.")
+            self.__console.error(
+                f"Подключение к БД 'SQLite' - ошибка: {error}.")
 
     def exec_query(self, query: str, args=()):
         """Выполнение SQL запроса без возвращения значений."""
@@ -34,7 +37,8 @@ class SQLite(DataBase):
             if self.__is_log_suc:
                 self.__console.succes(f"Запрос:\n{query}\nвыполнен - успешно.")
         except Error as error:
-            self.__console.error(f"Запрос:\n{query}\nне выполнен - ошибка: {error}.")
+            self.__console.error(
+                f"Запрос:\n{query}\nне выполнен - ошибка: {error}.")
 
     def exec_read_query(self, query: str, args=()):
         """Выполнение SQL запроса с возвращяемыми значениями."""
