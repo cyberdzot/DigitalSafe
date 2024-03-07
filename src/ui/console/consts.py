@@ -1,3 +1,5 @@
+"""Модуль с констатами для UI."""
+
 from enum import Enum
 
 

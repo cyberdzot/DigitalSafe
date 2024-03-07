@@ -1,28 +1,31 @@
+"""Модуль, отвечающий за отрисовку данных в консоли."""
+
+from pyperclip import copy as copy_in_buffer
+from entities.hash import get_hash
 from global_consts.g_consts import GConst
 from ui.console.consts import Const
 from ui.console.utils import Console
 from entities.account_data import AccountData
-from entities.hash import Hash
 from entities.scrambler import Cipher
-from pyperclip import copy as copy_in_buffer
 
 
 class Windows:
     """Окна для консоли."""
 
-    __open_window = GConst.WIN_MANUAL.value
-    __warn = ""
-    __ans1 = ""
-    __ans2 = ""
-    __ans3 = ""
-    __winstr = []
-    __query = Const.QUERY_NULL.value
-    # ---------------------------------------------------
-
     def __init__(self, console: Console, name_and_version: tuple):
         self.__app_name = name_and_version[0]
         self.__app_version = name_and_version[1]
         self.__console = console
+        self.__account = None
+        self.__cipher = None
+        self.__view_resource = None
+        self.__open_window = GConst.WIN_MANUAL.value
+        self.__query = Const.QUERY_NULL.value
+        self.__warn = ""
+        self.__ans1 = ""
+        self.__ans2 = ""
+        self.__ans3 = ""
+        self.__winstr = []
 
     def sync_account(self, account: AccountData, cipher: Cipher):
         """Начальная синхронизация аккаунта для связки UI с Core."""
@@ -53,8 +56,8 @@ class Windows:
         self.__console.warn(self.__warn + "\n")
 
         # переберём строки к показу
-        for str in self.__winstr:
-            self.__console.message(str)
+        for string in self.__winstr:
+            self.__console.message(string)
 
     def add_query(self, data_for_query: tuple):
         """Добавить кортёж с данными для запроса к БД."""
@@ -68,10 +71,6 @@ class Windows:
         return temp  # ('id query', 'arg1', 'arg2', 'arg3')
 
     # ---------------------------------------------------
-
-    # def window_wait(self):
-    #     """Окно - (X). Ожидание."""
-    #     pass
 
     def window_manual(self):
         """Окно - (1). Знакомство с программой, инструкция."""
@@ -132,8 +131,9 @@ class Windows:
         if self.__ans2 == "":
             self.set_window(GConst.WIN_AUTHENTICATION.value)
             return
-        self.__ans2 = Hash().get(self.__ans2)
-        self.add_query((GConst.QUERY_REGISTRATION.value, self.__ans1, self.__ans2))
+        self.__ans2 = get_hash(self.__ans2)
+        self.add_query((GConst.QUERY_REGISTRATION.value,
+                       self.__ans1, self.__ans2))
 
     def window_login(self):
         """Окно - (3). Вход."""
@@ -151,7 +151,7 @@ class Windows:
         if self.__ans2 == "":
             self.set_window(GConst.WIN_AUTHENTICATION.value)
             return
-        self.__ans2 = Hash().get(self.__ans2)
+        self.__ans2 = get_hash(self.__ans2)
         self.add_query((GConst.QUERY_LOGIN.value, self.__ans1, self.__ans2))
 
     def resources_append(self):
@@ -220,7 +220,8 @@ class Windows:
             self.set_window(GConst.WIN_MAIN_MENU.value)
             return
         # шифруем пароль
-        self.__ans3 = self.__cipher.aesCbcPbkdf2EncryptToBase64(self.__ans3)
+        self.__ans3 = self.__cipher.aes_cbc_pbkdf2_encrypt_to_base64(
+            self.__ans3)
         # добавим новый в переменную и в БД по очереди
         self.add_query(
             (GConst.QUERY_ADD_RESOURCE.value, self.__ans1, self.__ans2, self.__ans3)
@@ -235,9 +236,9 @@ class Windows:
             "Вы можете выбрать выбрать цифру от 1 до 3, чтобы скопировать данные в буфер обмена",
             "[0] ...Стереть эти данные...",
             "Данные:",
-            # ? тут можно будет выводить ID ресурса, чтобы можно было менять ID
+            # тут будет выводить ID ресурса, чтобы можно было менять ID
         ]
-        decrypt_data = self.__cipher.aesCbcPbkdf2DecryptFromBase64(
+        decrypt_data = self.__cipher.aes_cbc_pbkdf2_decrypt_from_base64(
             self.__view_resource[3]
         )
         self.__winstr.append("[1] Ресурс:\t" + (self.__view_resource[1]))
@@ -253,9 +254,10 @@ class Windows:
                 self.set_window(GConst.WIN_MAIN_MENU.value)
             case "0":
                 # удаляем ресурс по значению,
-                # то бишь список со значенияеми (self.__view_resource)
+                # то бишь список со значениями (self.__view_resource)
                 # и возвращаемся назад
-                self.add_query((GConst.QUERY_DEL_RESOURCE.value, self.__view_resource))
+                self.add_query(
+                    (GConst.QUERY_DEL_RESOURCE.value, self.__view_resource))
                 self.set_window(GConst.WIN_MAIN_MENU.value)
             case "1" | "2":
                 copy_in_buffer(self.__view_resource[int(self.__ans1)])

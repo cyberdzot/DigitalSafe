@@ -1,3 +1,5 @@
+"""Модуль, отвечающий за форматирование текста и другие функции в консоли."""
+
 from os import system
 from colorama import init, Fore
 
@@ -32,12 +34,12 @@ class Console:
         print(f"{Fore.CYAN}{string}")
 
 
-class Other:
-    """Библиотека с разными инструментами."""
+# class Other:
+#     """Библиотека с разными инструментами."""
 
-    def contains_char_in_digits(string: str) -> bool:
-        """Проверка строки на то, что в ней по мимо цифр есть символы."""
-        for char in string:
-            if not char.isdigit():
-                return True
-        return False
+#     def contains_char_in_digits(self, string: str) -> bool:
+#         """Проверка строки на то, что в ней по мимо цифр есть символы."""
+#         for char in string:
+#             if not char.isdigit():
+#                 return True
+#         return False

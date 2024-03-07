@@ -1,9 +1,11 @@
+"""Модуль, отвечающий за контроллер, где происходит основная работа приложения."""
+
+from os import mkdir, getcwd
+from os.path import isdir
 from controller.consts import Const
 from global_consts.g_consts import GConst
 from ui.console.utils import Console
 from ui.console.windows import Windows
-from os.path import isdir
-from os import mkdir, getcwd
 from db.data_base_sqlite import SQLite
 from entities.account_data import AccountData
 from entities.scrambler import Cipher
@@ -12,8 +14,7 @@ from entities.scrambler import Cipher
 class Core:
     """Ядро программы (Контроллер)."""
 
-    def run_application(self, name_and_version: tuple):
-        """Запуск ядра программы."""
+    def __init__(self, name_and_version: tuple) -> None:
         # создание шифратора/дешифратора с каким то своим постоянным ключём
         self.__cipher = Cipher("0i&2M*2Hsq^rWLt1")
 
@@ -26,7 +27,7 @@ class Core:
         # запуск интерфейса
         self.ui_init(name_and_version)
 
-    def db_init(self):
+    def db_init(self) -> None:
         """Инициализация базы данных на старте программы."""
 
         # настраиваем путь к директории БД и открываем соединения с БД
@@ -40,9 +41,10 @@ class Core:
             self.__console, data_dir + "\\test_resources.sqlite", False
         )
         # создаём таблицу аккаунтов если её нету:
-        SQLite.exec_query(self.__sql_connect_account, Const.NEW_TABLE_ACCOUNTS.value)
+        SQLite.exec_query(self.__sql_connect_account,
+                          Const.NEW_TABLE_ACCOUNTS.value)
 
-    def ui_init(self, name_and_version: tuple):
+    def ui_init(self, name_and_version: tuple) -> None:
         """Запуск всего UI в консоли и дальнейшая работа в ней."""
         #
         self.__windows = Windows(self.__console, name_and_version)
@@ -127,7 +129,8 @@ class Core:
                         self.__account = AccountData(
                             result_account[0][0], result_account[0][1], result_res
                         )
-                        self.__windows.sync_account(self.__account, self.__cipher)
+                        self.__windows.sync_account(
+                            self.__account, self.__cipher)
                         self.__windows.set_window(GConst.WIN_MAIN_MENU.value)
                 # добавить новый ресурс(имя-логин-пароль)
                 case GConst.QUERY_ADD_RESOURCE.value:

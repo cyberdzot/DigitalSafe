@@ -1,55 +1,66 @@
+"""Модуль для сущности шифратор."""
+
+import base64
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 from Crypto.Hash import SHA256
 from Crypto.Util.Padding import pad
 from Crypto.Util.Padding import unpad
-import base64
 
 
 class Cipher:
+    """Класс сущности - шифратор."""
+
     def __init__(self, password: str):
         self.__password = password
+        # количество итераций, используемое в алгоритме PBKDF2 для усиления паролей
+        self.__pbkdf2_iterations = 15000
 
-    def base64Encoding(self, input: str) -> str:
-        dataBase64 = base64.b64encode(input)
-        dataBase64P = dataBase64.decode("UTF-8")
-        return dataBase64P
+    def base64_encoding(self, data_in: str) -> str:
+        """Кодировать строку в формат Base64."""
+        data_base64 = base64.b64encode(data_in)
+        data_base64p = data_base64.decode("UTF-8")
+        return data_base64p
 
-    def base64Decoding(self, input: str) -> bytes:
-        return base64.decodebytes(input.encode("UTF-8"))
+    def base64_decoding(self, data_in: str) -> bytes:
+        """Декодировать строку из формата Base64."""
+        return base64.decodebytes(data_in.encode("UTF-8"))
 
-    def generateSalt32Byte(self) -> bytes:
+    def generate_salt_32byte(self) -> bytes:
+        """Генерировать 32-байтную случайную соль для хеширования паролей."""
         return get_random_bytes(32)
 
-    def aesCbcPbkdf2EncryptToBase64(self, plaintext: str) -> str:
-        passwordBytes = self.__password.encode("UTF-8")
-        salt = self.generateSalt32Byte()
-        PBKDF2_ITERATIONS = 15000
-        encryptionKey = PBKDF2(
-            passwordBytes, salt, 32, count=PBKDF2_ITERATIONS, hmac_hash_module=SHA256
+    def aes_cbc_pbkdf2_encrypt_to_base64(self, plaintext: str) -> str:
+        """Зашифровать текст в формате Base64, включающий соль, вектор инициализации (IV)
+        и сам зашифрованный текст, разделенные двоеточиями."""
+        password_bytes = self.__password.encode("UTF-8")
+        salt = self.generate_salt_32byte()
+        encryption_key = PBKDF2(
+            password_bytes, salt, 32, count=self.__pbkdf2_iterations, hmac_hash_module=SHA256
         )
-        cipher = AES.new(encryptionKey, AES.MODE_CBC)
-        ciphertext = cipher.encrypt(pad(plaintext.encode("UTF-8"), AES.block_size))
-        ivBase64 = self.base64Encoding(cipher.iv)
-        saltBase64 = self.base64Encoding(salt)
-        ciphertextBase64 = self.base64Encoding(ciphertext)
-        return saltBase64 + ":" + ivBase64 + ":" + ciphertextBase64
+        cipher = AES.new(encryption_key, AES.MODE_CBC)
+        ciphertext = cipher.encrypt(
+            pad(plaintext.encode("UTF-8"), AES.block_size))
+        iv_base64 = self.base64_encoding(cipher.iv)
+        salt_base64 = self.base64_encoding(salt)
+        ciphertext_base64 = self.base64_encoding(ciphertext)
+        return salt_base64 + ":" + iv_base64 + ":" + ciphertext_base64
 
-    def aesCbcPbkdf2DecryptFromBase64(self, ciphertextBase64: str) -> str:
-        passwordBytes = self.__password.encode("UTF-8")
-        data = ciphertextBase64.split(":")
-        salt = self.base64Decoding(data[0])
-        iv = self.base64Decoding(data[1])
-        ciphertext = self.base64Decoding(data[2])
-        PBKDF2_ITERATIONS = 15000
-        decryptionKey = PBKDF2(
-            passwordBytes, salt, 32, count=PBKDF2_ITERATIONS, hmac_hash_module=SHA256
+    def aes_cbc_pbkdf2_decrypt_from_base64(self, ciphertext_base64: str) -> str:
+        """Расшифровать текст зашифрованный алгоритмом выше."""
+        password_bytes = self.__password.encode("UTF-8")
+        data = ciphertext_base64.split(":")
+        salt = self.base64_decoding(data[0])
+        iv = self.base64_decoding(data[1])
+        ciphertext = self.base64_decoding(data[2])
+        decryption_key = PBKDF2(
+            password_bytes, salt, 32, count=self.__pbkdf2_iterations, hmac_hash_module=SHA256
         )
-        cipher = AES.new(decryptionKey, AES.MODE_CBC, iv)
+        cipher = AES.new(decryption_key, AES.MODE_CBC, iv)
         decryptedtext = unpad(cipher.decrypt(ciphertext), AES.block_size)
-        decryptedtextP = decryptedtext.decode("UTF-8")
-        return decryptedtextP
+        decryptedtext_p = decryptedtext.decode("UTF-8")
+        return decryptedtext_p
 
 
 # создаём шифратор с введёным ключём
@@ -60,9 +71,9 @@ class Cipher:
 # print("plaintext: " + plaintext)
 
 # print("\n* * * Encryption * * *")
-# ciphertextBase64 = cipher.aesCbcPbkdf2EncryptToBase64(plaintext)
-# print("ciphertext: " + ciphertextBase64)
+# ciphertext_base64 = cipher.aes_cbc_pbkdf2_encrypt_to_base64(plaintext)
+# print("ciphertext: " + ciphertext_base64)
 
 # print("\n* * * Decryption * * *")
-# decryptedtext = cipher.aesCbcPbkdf2DecryptFromBase64(ciphertextBase64)
+# decryptedtext = cipher.aes_cbc_pbkdf2_decrypt_from_base64(ciphertextBase64)
 # print("plaintext: " + decryptedtext)
