@@ -14,32 +14,21 @@ class Console:
         """Имитация очистки консоли."""
         system("cls")
 
-    def error(self, string: str):
+    def error(self, text: str):
         """Сообщение об ошибке, вывод красного текста в консоль."""
-        print(f"{Fore.RED}[ОШИБКА] {string}")
+        print(f"{Fore.RED}[ОШИБКА] {text}")
 
-    def warn(self, string: str):
+    def warn(self, text: str):
         """Сообщение о предупреждении, вывод жёлтого текста в консоль."""
-        if string == "" or string == "\n":
+        if text == "" or text == "\n":
             print("")
         else:
-            print(f"{Fore.YELLOW}[ВНИМАНИЕ] {string}")
+            print(f"{Fore.YELLOW}[ВНИМАНИЕ] {text}")
 
-    def succes(self, string: str):
+    def succes(self, text: str):
         """Сообщение об успехе, вывод зелёного текста в консоль."""
-        print(f"{Fore.GREEN}[УСПЕХ] {string}")
+        print(f"{Fore.GREEN}[УСПЕХ] {text}")
 
-    def message(self, string: str):
+    def message(self, text: str):
         """Простое сообщение, вывод бирюзового/голубого текста в консоль."""
-        print(f"{Fore.CYAN}{string}")
-
-
-# class Other:
-#     """Библиотека с разными инструментами."""
-
-#     def contains_char_in_digits(self, string: str) -> bool:
-#         """Проверка строки на то, что в ней по мимо цифр есть символы."""
-#         for char in string:
-#             if not char.isdigit():
-#                 return True
-#         return False
+        print(f"{Fore.CYAN}{text}")

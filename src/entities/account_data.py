@@ -1,4 +1,5 @@
 """Модуль для сущности данных(логин-пароль-данные)."""
+# ? возможно стоит __userdata перевести в tuple для быстрого чтения
 
 
 class AccountData:
@@ -21,7 +22,7 @@ class AccountData:
         """Получить учётные данные пользователя."""
         return self.__userdata
 
-    def set_user_data(self, data: list):
+    def set_user_data(self, data: list) -> None:
         """Заменить учётные данные пользователя на новые."""
         self.__userdata = data
         # data = [ id: int, resname: str, login: str, pass: str]

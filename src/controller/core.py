@@ -2,10 +2,9 @@
 
 from os import mkdir, getcwd
 from os.path import isdir
-from controller.consts import Const
-from global_consts.g_consts import GConst
-from ui.console.utils import Console
-from ui.console.windows import Windows
+from utils.utils_consts import ConstAutoNum, ConstCore
+from utils.utils_console import Console
+from ui.console.windows import ConsoleUI
 from db.data_base_sqlite import SQLite
 from entities.account_data import AccountData
 from entities.scrambler import Cipher
@@ -14,7 +13,8 @@ from entities.scrambler import Cipher
 class Core:
     """Ядро программы (Контроллер)."""
 
-    def __init__(self, name_and_version: tuple) -> None:
+    def __init__(self, app_info: tuple):
+
         # создание шифратора/дешифратора с каким то своим постоянным ключём
         self.__cipher = Cipher("0i&2M*2Hsq^rWLt1")
 
@@ -22,10 +22,14 @@ class Core:
         self.__console = Console()
 
         # подключение к базе данных или сначала её инициализация(если первый запуск)
+        self.__sql_connect_account = None
+        self.__sql_connect_resources = None
         self.db_init()
 
         # запуск интерфейса
-        self.ui_init(name_and_version)
+        self.__windows = ConsoleUI(self.__console, app_info)
+        self.__account = None
+        self.ui_launch()
 
     def db_init(self) -> None:
         """Инициализация базы данных на старте программы."""
@@ -35,47 +39,44 @@ class Core:
         if not isdir(data_dir):
             mkdir(data_dir)
         self.__sql_connect_account = SQLite(
-            self.__console, data_dir + "\\test_account.sqlite", False
+            self.__console, data_dir + "\\accounts.sqlite", False
         )
         self.__sql_connect_resources = SQLite(
-            self.__console, data_dir + "\\test_resources.sqlite", False
+            self.__console, data_dir + "\\resources.sqlite", False
         )
         # создаём таблицу аккаунтов если её нету:
         SQLite.exec_query(self.__sql_connect_account,
-                          Const.NEW_TABLE_ACCOUNTS.value)
+                          ConstCore.NEW_TABLE_ACCOUNTS.value)
 
-    def ui_init(self, name_and_version: tuple) -> None:
-        """Запуск всего UI в консоли и дальнейшая работа в ней."""
-        #
-        self.__windows = Windows(self.__console, name_and_version)
-        #
+    def ui_launch(self) -> None:
+        """Запуск и дальнейшая работа UI в консоли."""
+        # Цикл собран под console-ui
         while True:
             self.__console.clear()
             # отрисуем выбранное окно в консоли
             match self.__windows.get_window():
-                case GConst.WIN_MANUAL.value:
+                case ConstAutoNum.WIN_MANUAL.value:
                     self.__windows.window_manual()
-                case GConst.WIN_AUTHENTICATION.value:
+                case ConstAutoNum.WIN_AUTHENTICATION.value:
                     self.__windows.window_authentication()
-                case GConst.WIN_REGISTRATION.value:
+                case ConstAutoNum.WIN_REGISTRATION.value:
                     self.__windows.window_registration()
-                case GConst.WIN_LOGIN.value:
+                case ConstAutoNum.WIN_LOGIN.value:
                     self.__windows.window_login()
-                case GConst.WIN_MAIN_MENU.value:
+                case ConstAutoNum.WIN_MAIN_MENU.value:
                     self.__windows.window_main_menu()
-                case GConst.WIN_ADD_RESOURCE.value:
+                case ConstAutoNum.WIN_ADD_RESOURCE.value:
                     self.__windows.window_add_resource()
-                case GConst.WIN_VIEW_RESOURCE.value:
+                case ConstAutoNum.WIN_VIEW_RESOURCE.value:
                     self.__windows.window_view_resource()
-                case GConst.WIN_EXIT.value:
+                case ConstAutoNum.WIN_EXIT.value:
                     # завершаем работу с приложением здесь...
                     break
-            #
             # отработаем по запросам к БД, если таковы имеются
             args_for_query = self.__windows.get_query()
             match args_for_query[0]:
                 # регистрация аккаунта в сейфе, успешно ли зарегало? или уже есть такой акк?
-                case GConst.QUERY_REGISTRATION.value:
+                case ConstAutoNum.QUERY_REGISTRATION.value:
                     result_account = SQLite.exec_read_query(
                         self.__sql_connect_account,
                         "SELECT name FROM users WHERE name = ?",
@@ -93,23 +94,22 @@ class Core:
                             self.__sql_connect_resources,
                             "CREATE TABLE IF NOT EXISTS "
                             + args_for_query[1]
-                            + Const.NEW_TABLE_RESOURCES.value,
+                            + ConstCore.NEW_TABLE_RESOURCES.value,
                         )
                         self.__windows.set_window(
-                            GConst.WIN_AUTHENTICATION.value,
+                            ConstAutoNum.WIN_AUTHENTICATION.value,
                             "Аккаунт с именем "
                             + args_for_query[1]
                             + " успешно зарегистрирован в базе, теперь можно войти.",
                         )
                     else:
                         self.__windows.set_window(
-                            GConst.WIN_AUTHENTICATION.value,
+                            ConstAutoNum.WIN_AUTHENTICATION.value,
                             "Аккаунт с именем "
                             + args_for_query[1]
                             + " уже зарегистрирован в базе, придумайте себе другое имя!",
                         )
-                #
-                case GConst.QUERY_LOGIN.value:
+                case ConstAutoNum.QUERY_LOGIN.value:
                     result_account = SQLite.exec_read_query(
                         self.__sql_connect_account,
                         "SELECT name, pass FROM users WHERE name = ? AND pass = ?",
@@ -118,7 +118,7 @@ class Core:
                     # если такого аккаунта нету - не впускаем с предупреждением
                     if result_account == []:
                         self.__windows.set_window(
-                            GConst.WIN_AUTHENTICATION.value,
+                            ConstAutoNum.WIN_AUTHENTICATION.value,
                             "Неверно указан логин или пароль.",
                         )
                     else:
@@ -131,9 +131,10 @@ class Core:
                         )
                         self.__windows.sync_account(
                             self.__account, self.__cipher)
-                        self.__windows.set_window(GConst.WIN_MAIN_MENU.value)
+                        self.__windows.set_window(
+                            ConstAutoNum.WIN_MAIN_MENU.value)
                 # добавить новый ресурс(имя-логин-пароль)
-                case GConst.QUERY_ADD_RESOURCE.value:
+                case ConstAutoNum.QUERY_ADD_RESOURCE.value:
                     temp_data = self.__account.get_user_data()
                     next_id = 1
                     if temp_data != []:
@@ -149,7 +150,7 @@ class Core:
                         (next_id, *args_for_query[1:4]),
                     )
                 # удалить выбранный ресурс
-                case GConst.QUERY_DEL_RESOURCE.value:
+                case ConstAutoNum.QUERY_DEL_RESOURCE.value:
                     resource = args_for_query[1]
                     # удалить с кеша
                     temp_data = self.__account.get_user_data()
