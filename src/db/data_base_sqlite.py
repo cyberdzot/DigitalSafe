@@ -1,8 +1,8 @@
 """Модуль, отвечающий за работу с SQLite."""
 
-from db.data_base import DataBase
-from utils.utils_console import Console
 from sqlite3 import connect, Error
+from utils.utils_console import Console  # pylint:disable=E0401
+from db.data_base import DataBase  # pylint:disable=E0401
 
 
 class SQLite(DataBase):
@@ -53,3 +53,4 @@ class SQLite(DataBase):
             return cursor.fetchall()
         except Error as error:
             self.__console.error(f"Запрос не выполнен - ошибка: {error}.")
+            return None

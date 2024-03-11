@@ -13,9 +13,7 @@ class DataBase(ABC):
     @abstractmethod
     def exec_query(self):
         """Выполнить SQL запрос к указанному соединению."""
-        pass
 
     @abstractmethod
     def exec_read_query(self):
         """Выполнить SQL запрос к указанному соединению, для чтения данных с БД."""
-        pass

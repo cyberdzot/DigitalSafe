@@ -1,32 +1,31 @@
 """Модуль, отвечающий за отрисовку данных в консоли."""
 
 from pyperclip import copy as copy_in_buffer
-from utils.utils import get_hash
-from utils.utils_consts import ConstAutoNum, ConstUI
-from utils.utils_console import Console
-from entities.account_data import AccountData
-from entities.scrambler import Cipher
+from utils.utils_others import get_hash  # pylint:disable=E0401
+from utils.utils_consts import ConstAutoNum, ConstUI  # pylint:disable=E0401
+from utils.utils_console import Console  # pylint:disable=E0401
+from entities.account_data import AccountData  # pylint:disable=E0401
+from entities.scrambler import Cipher  # pylint:disable=E0401
 
 
 class ConsoleUI:
     """Виртуальные окна в консоли."""
 
-    def __init__(self, console: Console, app_info: tuple):
+    def __init__(self, console: Console, app_info: tuple, cipher: Cipher):
         self.__open_window = ConstAutoNum.WIN_MANUAL.value
         self.__query = ConstUI.QUERY_NULL.value
         self.__app_info = app_info
         self.__console = console
         self.__account = None
-        self.__cipher = None
+        self.__cipher = cipher
         self.__view_resource = None
         self.__warn = ""
         self.__ans = ["", "", ""]
         self.__messages = []
 
-    def sync_account(self, account: AccountData, cipher: Cipher):
+    def sync_account(self, account: AccountData):
         """Начальная синхронизация аккаунта для связки UI с Core."""
         self.__account = account
-        self.__cipher = cipher
 
     def set_window(self, window: int, warn=""):
         """Выбрать ID окна для отображения и возможность показать предупреждение в нём."""

@@ -51,3 +51,6 @@ class ConstCore(Enum):
         pass TEXT NOT NULL
     )
     """
+
+    # ключ для шифратора
+    KEY_CIPHER = "0i&2M*2Hsq^rWLt1"

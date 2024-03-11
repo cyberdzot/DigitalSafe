@@ -2,12 +2,12 @@
 
 from os import mkdir, getcwd
 from os.path import isdir
-from utils.utils_consts import ConstAutoNum, ConstCore
-from utils.utils_console import Console
-from ui.console.windows import ConsoleUI
-from db.data_base_sqlite import SQLite
-from entities.account_data import AccountData
-from entities.scrambler import Cipher
+from utils.utils_consts import ConstAutoNum, ConstCore  # pylint:disable=E0401
+from utils.utils_console import Console  # pylint:disable=E0401
+from ui.console.windows import ConsoleUI  # pylint:disable=E0401
+from db.data_base_sqlite import SQLite  # pylint:disable=E0401
+from entities.account_data import AccountData  # pylint:disable=E0401
+from entities.scrambler import Cipher  # pylint:disable=E0401
 
 
 class Core:
@@ -15,8 +15,6 @@ class Core:
 
     def __init__(self, app_info: tuple):
 
-        # создание шифратора/дешифратора с каким то своим постоянным ключём
-        self.__cipher = Cipher("0i&2M*2Hsq^rWLt1")
 
         # инициализация консоли
         self.__console = Console()
@@ -27,7 +25,9 @@ class Core:
         self.db_init()
 
         # запуск интерфейса
-        self.__windows = ConsoleUI(self.__console, app_info)
+        # создание шифратора/дешифратора с каким то своим постоянным ключём
+        self.__windows = ConsoleUI(
+            self.__console, app_info, Cipher(ConstCore.KEY_CIPHER.value))
         self.__account = None
         self.ui_launch()
 
@@ -130,7 +130,7 @@ class Core:
                             result_account[0][0], result_account[0][1], result_res
                         )
                         self.__windows.sync_account(
-                            self.__account, self.__cipher)
+                            self.__account)
                         self.__windows.set_window(
                             ConstAutoNum.WIN_MAIN_MENU.value)
                 # добавить новый ресурс(имя-логин-пароль)
