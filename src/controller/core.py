@@ -1,20 +1,21 @@
 """Модуль, отвечающий за контроллер, где происходит основная работа приложения."""
 
-from os import mkdir, getcwd
-from os.path import isdir
-from utils.utils_consts import ConstAutoNum, ConstCore  # pylint:disable=E0401
-from utils.utils_console import Console  # pylint:disable=E0401
-from ui.console.windows import ConsoleUI  # pylint:disable=E0401
 from db.data_base_sqlite import SQLite  # pylint:disable=E0401
 from entities.account_data import AccountData  # pylint:disable=E0401
 from entities.scrambler import Cipher  # pylint:disable=E0401
+from ui.console.windows import ConsoleUI  # pylint:disable=E0401
+from utils.utils_consts import ConstAutoNum, ConstCore, ConstDB  # pylint:disable=E0401
+from utils.utils_console import Console  # pylint:disable=E0401
+from utils.utils_others import make_path  # pylint:disable=E0401
+from utils.utils_logger import logger_init  # pylint:disable=E0401
 
 
 class Core:
     """Ядро программы (Контроллер)."""
 
     def __init__(self, app_info: tuple):
-
+        # инициализация логгера
+        self.__logger = logger_init("logs")
 
         # инициализация консоли
         self.__console = Console()
@@ -34,16 +35,19 @@ class Core:
     def db_init(self) -> None:
         """Инициализация базы данных на старте программы."""
 
-        # настраиваем путь к директории БД и открываем соединения с БД
-        data_dir = getcwd() + "\\data"
-        if not isdir(data_dir):
-            mkdir(data_dir)
+        # настраиваем путь к директории БД(если он отсутвует) и открываем соединения с БД
+        data_dir = "data"
+        make_path(data_dir)
         self.__sql_connect_account = SQLite(
-            self.__console, data_dir + "\\accounts.sqlite", False
-        )
+            data_dir + "/accounts.sqlite",
+            self.__logger,
+            "accounts",
+            ConstDB.LOG_2_ERROR.value)
         self.__sql_connect_resources = SQLite(
-            self.__console, data_dir + "\\resources.sqlite", False
-        )
+            data_dir + "/resources.sqlite",
+            self.__logger,
+            "resources",
+            ConstDB.LOG_2_ERROR.value)
         # создаём таблицу аккаунтов если её нету:
         SQLite.exec_query(self.__sql_connect_account,
                           ConstCore.NEW_TABLE_ACCOUNTS.value)

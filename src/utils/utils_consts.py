@@ -23,12 +23,6 @@ class ConstAutoNum(Enum):
     QUERY_DEL_RESOURCE = auto()
 
 
-class ConstUI(Enum):
-    """Константные значения для модулей 'ui'."""
-
-    QUERY_NULL = (None, None, None, None)
-
-
 class ConstCore(Enum):
     """Константные значения для модулей 'controller'."""
 
@@ -54,3 +48,17 @@ class ConstCore(Enum):
 
     # ключ для шифратора
     KEY_CIPHER = "0i&2M*2Hsq^rWLt1"
+
+
+class ConstDB(Enum):
+    """Константные значения для модулей 'db'."""
+
+    LOG_1_OFF = auto()
+    LOG_2_ERROR = auto()
+    LOG_3_ALL = auto()
+
+
+class ConstUI(Enum):
+    """Константные значения для модулей 'ui'."""
+
+    QUERY_NULL = (None, None, None, None)
