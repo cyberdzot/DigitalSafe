@@ -1,9 +1,9 @@
-"""Модуль для точки входа."""
+"""Модуль с точкой входа."""
 
 from controller.core import Core
 
 APP_NAME = "Digital Safe"
-APP_VERSION = "0.4.1"
+APP_VERSION = "0.4.2"
 
 
 def main():
