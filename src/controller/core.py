@@ -25,10 +25,13 @@ class Core:
         self.__sql_connect_resources = None
         self.db_init()
 
+        # создание шифратора/дешифратора с временным ключём
+        # в процессе входа приложим мастер-пароль вместо этого ключа
+        self.__cipher = Cipher("0i&2M*2Hsq^rWLt1")
+
         # запуск интерфейса
-        # создание шифратора/дешифратора с каким то своим постоянным ключём
         self.__windows = ConsoleUI(
-            self.__console, app_info, Cipher(ConstCore.KEY_CIPHER.value))
+            self.__console, app_info, self.__cipher)
         self.__account = None
         self.ui_launch()
 
@@ -133,6 +136,8 @@ class Core:
                         self.__account = AccountData(
                             result_account[0][0], result_account[0][1], result_res
                         )
+                        # делаем мастер-пароль до хеширования ключём для шифратора
+                        self.__cipher.set_password(args_for_query[3])
                         self.__windows.sync_account(
                             self.__account)
                         self.__windows.set_window(

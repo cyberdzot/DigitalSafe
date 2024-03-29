@@ -146,9 +146,9 @@ class ConsoleUI:  # pylint:disable=R0902
         if self.__ans[1] == "":
             self.set_window(ConstAutoNum.WIN_AUTHENTICATION.value)
             return
-        self.__ans[1] = get_hash(self.__ans[1])
+        password_hash = get_hash(self.__ans[1])
         self.add_query((ConstAutoNum.QUERY_LOGIN.value,
-                       self.__ans[0], self.__ans[1]))
+                       self.__ans[0], password_hash, self.__ans[1]))
 
     def resources_append(self):
         """Добавить имеющиеся ресурсы в список главного меню."""
@@ -175,7 +175,9 @@ class ConsoleUI:  # pylint:disable=R0902
         #
         self.__ans[0] = input("Введите цифру: ")
         if self.__ans[0] == "":  # pylint:disable=R1705
-            # если пустой ввод - разлогиниваемся
+            # если пустой ввод - разлогиниваемся и меняем ключ на любой другой
+            self.__account = None
+            self.__cipher.set_password("1i&2M*2Hsq^rWLt5")
             self.set_window(ConstAutoNum.WIN_AUTHENTICATION.value)
             return
         elif self.__ans[0] == "0":

@@ -3,7 +3,7 @@
 from controller.core import Core
 
 APP_NAME = "Digital Safe"
-APP_VERSION = "0.4.3"
+APP_VERSION = "0.4.4"
 
 
 def main():

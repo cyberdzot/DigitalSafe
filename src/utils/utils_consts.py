@@ -46,9 +46,6 @@ class ConstCore(Enum):
     )
     """
 
-    # ключ для шифратора
-    KEY_CIPHER = "0i&2M*2Hsq^rWLt1"
-
 
 class ConstDB(Enum):
     """Константные значения для модулей 'db'."""

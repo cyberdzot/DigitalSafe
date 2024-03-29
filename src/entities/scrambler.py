@@ -1,6 +1,7 @@
 """Модуль для сущности шифратор."""
 
 import base64
+# pycryptodome
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
 from Crypto.Protocol.KDF import PBKDF2
@@ -22,6 +23,10 @@ class Cipher:
         # желаемая длина ключа
         self.__dk_len = 32
 
+    def set_password(self, password: str):
+        """Сменить ключ для шифратора."""
+        self.__password = password
+
     def base64_encoding(self, data_in: str) -> str:
         """Кодировать строку в формат Base64."""
         data_base64 = base64.b64encode(data_in)
@@ -37,7 +42,7 @@ class Cipher:
         return get_random_bytes(32)
 
     def aes_cbc_pbkdf2_encrypt_to_base64(self, plaintext: str) -> str:
-        """Зашифровать текст с помощью функции PBKDF2 в формате Base64, разделенный двоеточиями."""
+        """Зашифровать текст с помощью AES алгоритма."""
         password_bytes = self.__password.encode("UTF-8")
         salt = self.generate_salt_32byte()
         encryption_key = PBKDF2(
