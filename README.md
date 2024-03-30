@@ -1,4 +1,4 @@
-# Digital Safe
+# Digital Safe (Alpha)
 
 ## О приложении
 
