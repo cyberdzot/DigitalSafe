@@ -1,8 +1,8 @@
 """Модуль, отвечающий за работу с SQLite."""
 
 from sqlite3 import connect, Error
-from db.data_base import DataBase  # pylint:disable=E0401
-from utils.utils_consts import ConstDB  # pylint:disable=E0401
+from db.data_base import DataBase
+from utils.utils_consts import ConstDB
 
 
 class SQLite(DataBase):

@@ -1,14 +1,14 @@
 """Модуль, отвечающий за отрисовку данных в консоли."""
 
 from pyperclip import copy as copy_in_buffer
-from utils.utils_others import get_hash  # pylint:disable=E0401
-from utils.utils_consts import ConstAutoNum, ConstUI  # pylint:disable=E0401
-from utils.utils_console import Console  # pylint:disable=E0401
-from entities.account_data import AccountData  # pylint:disable=E0401
-from entities.scrambler import Cipher  # pylint:disable=E0401
+from utils.utils_others import get_hash
+from utils.utils_consts import ConstAutoNum, ConstUI
+from utils.utils_console import Console
+from entities.account_data import AccountData
+from entities.scrambler import Cipher
 
 
-class ConsoleUI:  # pylint:disable=R0902
+class ConsoleUI:
     """Виртуальные окна в консоли."""
 
     def __init__(self, console: Console, app_info: tuple, cipher: Cipher):
@@ -174,7 +174,7 @@ class ConsoleUI:  # pylint:disable=R0902
         self.update_window()
         #
         self.__ans[0] = input("Введите цифру: ")
-        if self.__ans[0] == "":  # pylint:disable=R1705
+        if self.__ans[0] == "":
             # если пустой ввод - разлогиниваемся и меняем ключ на любой другой
             self.__account = None
             self.__cipher.set_password("1i&2M*2Hsq^rWLt5")

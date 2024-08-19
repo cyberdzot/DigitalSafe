@@ -20,7 +20,7 @@ class Console:
 
     def warn(self, text: str):
         """Сообщение о предупреждении, вывод жёлтого текста в консоль."""
-        if text == "" or text == "\n":
+        if text in {"", "\n"}:
             print("")
         else:
             print(f"{Fore.YELLOW}[ВНИМАНИЕ] {text}")
